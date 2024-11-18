@@ -54,6 +54,22 @@ const server = http.createServer(async (req, res) => {
         res.end('Internal Server Error');
       }
     });
+  } else if (req.method === 'GET') {
+    try {
+      const image = await fs.readFile(filePath);
+      res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+      res.end(image);
+    } catch {
+      try {
+        const imageBuffer = await fetchCatImage(statusCode);
+        await fs.writeFile(filePath, imageBuffer);
+        res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+        res.end(imageBuffer);
+      } catch {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end(`Image not found for status code ${statusCode}.`);
+      }
+    }
   } 
 });
 
